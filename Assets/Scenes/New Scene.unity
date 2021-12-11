@@ -166,14 +166,40 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8777cff1b03ed0f498fb2e77c00848a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _drawMode: 1
   _width: 100
   _height: 100
-  _noiseScale: 13.92
-  _octaves: 7
-  _persistance: 0.57
-  _lacunarity: 2.87
-  _seed: 3
-  _offset: {x: 67.15, y: 5.4}
+  _noiseScale: 25
+  _octaves: 5
+  _persistance: 0.47
+  _lacunarity: 2.94
+  _seed: 0
+  _offset: {x: 64.65, y: 7.7}
+  _regions:
+  - Height: 0.3
+    Color: {r: 0.02444516, g: 0.11057389, b: 0.9716981, a: 1}
+    Name: Deep blue sea
+  - Height: 0.45
+    Color: {r: 0, g: 0.41341257, b: 1, a: 1}
+    Name: Sea
+  - Height: 0.5
+    Color: {r: 0.94189066, g: 0.9528302, b: 0.5543194, a: 1}
+    Name: Beach
+  - Height: 0.65
+    Color: {r: 0.21657377, g: 0.6132076, b: 0, a: 1}
+    Name: Grass
+  - Height: 0.75
+    Color: {r: 0.33962262, g: 0.23425417, b: 0.14951937, a: 1}
+    Name: Mountains
+  - Height: 0.83
+    Color: {r: 0.3207547, g: 0.2851839, b: 0.25620028, a: 1}
+    Name: Mountains
+  - Height: 0.94
+    Color: {r: 0.8773585, g: 0.8773585, b: 0.8773585, a: 1}
+    Name: MountainTops
+  - Height: 1
+    Color: {r: 1, g: 1, b: 1, a: 1}
+    Name: MountainTops
   AutoUpdate: 1
 --- !u!4 &330586357
 Transform:
