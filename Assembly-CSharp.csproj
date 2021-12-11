@@ -57,6 +57,7 @@
     <Compile Include="Assets\Scipts\MapGenerator.cs" />
     <Compile Include="Assets\Scipts\Noise.cs" />
     <Compile Include="Assets\Scipts\TextureGenerator.cs" />
+    <Compile Include="Assets\Scipts\MeshGenerator.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

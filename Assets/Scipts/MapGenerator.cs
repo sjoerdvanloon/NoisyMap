@@ -15,7 +15,7 @@ public class MapGenerator : MonoBehaviour
         public string Name;
     }
 
-    public enum DrawMode { NoiseMap, ColorMap };
+    public enum DrawMode { NoiseMap, ColorMap, Mesh };
 
     [SerializeField] DrawMode _drawMode = DrawMode.NoiseMap;
     [SerializeField] int _width = 100;
@@ -63,14 +63,21 @@ public class MapGenerator : MonoBehaviour
         }
 
         var mapDisplay = FindObjectOfType<MapDisplay>();
+        var noiseTexture = TextureGenerator.TextureFromHeightMap(noiseMap);
+        var colorTexture = TextureGenerator.TextureFromColorMap(colorMap, _width, _height);
+
 
         switch (this._drawMode)
         {
             case DrawMode.NoiseMap:
-                mapDisplay.DrawTexture(TextureGenerator.TextureFromHeightMap(noiseMap));
+                mapDisplay.DrawTexture(noiseTexture);
                 break;
             case DrawMode.ColorMap:
-                mapDisplay.DrawTexture(TextureGenerator.TextureFromColorMap(colorMap, _width, _height));
+                mapDisplay.DrawTexture(colorTexture);
+                break;
+            case DrawMode.Mesh:
+                var meshData = MeshGenerator.GenerateTerrainMeshData(noiseMap);
+                mapDisplay.DrawMesh(meshData, colorTexture);
                 break;
             default:
                 throw new NotImplementedException();
