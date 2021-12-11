@@ -8,7 +8,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <ProjectGuid>{274CD9D5-9FD9-30E5-08B5-48BD7A2D84C4}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -58,6 +59,7 @@
     <Compile Include="Assets\Scipts\Noise.cs" />
     <Compile Include="Assets\Scipts\TextureGenerator.cs" />
     <Compile Include="Assets\Scipts\MeshGenerator.cs" />
+    <Compile Include="GlobalSuppressions2.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

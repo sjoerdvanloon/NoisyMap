@@ -16,10 +16,10 @@ public class MapGenerator : MonoBehaviour
     }
 
     public enum DrawMode { NoiseMap, ColorMap, Mesh };
+    const int MapChunkSize = 241;
 
     [SerializeField] DrawMode _drawMode = DrawMode.NoiseMap;
-    [SerializeField] int _width = 100;
-    [SerializeField] int _height = 100;
+    [Header("Procedural generations")]
     [SerializeField] float _noiseScale = 2;
     [SerializeField] int _octaves = 4;
     [Range(0f, 1f)]
@@ -27,7 +27,14 @@ public class MapGenerator : MonoBehaviour
     [SerializeField] float _lacunarity = 0.2f;
     [SerializeField] int _seed = 1;
     [SerializeField] Vector2 _offset = new Vector2(0.1f, 0.1f);
-    [SerializeField] [FormerlySerializedAs("_terrainTypes")] TerrainType[] _regions;
+
+    [Header("Mesh")]
+    [SerializeField] [Range(0, 6)] int _detailLevel = 0;
+    [SerializeField] float _meshHeightMultiPlier = 2f;
+    [SerializeField] AnimationCurve _meshHeightCurve = null;
+    [SerializeField]
+    [FormerlySerializedAs("_terrainTypes")] 
+    TerrainType[] _regions;
 
 
     public bool AutoUpdate;
@@ -36,8 +43,8 @@ public class MapGenerator : MonoBehaviour
     {
 
         var noiseMap = Noise.GenerateNoiseMap(
-            _width,
-            _height,
+            MapChunkSize,
+            MapChunkSize,
             _seed,
             _noiseScale,
             _octaves,
@@ -45,17 +52,17 @@ public class MapGenerator : MonoBehaviour
             _lacunarity,
             _offset);
 
-        Color[] colorMap = new Color[_width * _height];
-        for (int y = 0; y < _height; y++)
+        Color[] colorMap = new Color[MapChunkSize * MapChunkSize];
+        for (int y = 0; y < MapChunkSize; y++)
         {
-            for (int x = 0; x < _width; x++)
+            for (int x = 0; x < MapChunkSize; x++)
             {
                 float currentHeight = noiseMap[x, y];
                 foreach (var region in _regions)
                 {
                     if (currentHeight <= region.Height)
                     {
-                        colorMap[y * _width + x] = region.Color;
+                        colorMap[y * MapChunkSize + x] = region.Color;
                         break;
                     }
                 }
@@ -64,7 +71,7 @@ public class MapGenerator : MonoBehaviour
 
         var mapDisplay = FindObjectOfType<MapDisplay>();
         var noiseTexture = TextureGenerator.TextureFromHeightMap(noiseMap);
-        var colorTexture = TextureGenerator.TextureFromColorMap(colorMap, _width, _height);
+        var colorTexture = TextureGenerator.TextureFromColorMap(colorMap, MapChunkSize, MapChunkSize);
 
 
         switch (this._drawMode)
@@ -76,7 +83,7 @@ public class MapGenerator : MonoBehaviour
                 mapDisplay.DrawTexture(colorTexture);
                 break;
             case DrawMode.Mesh:
-                var meshData = MeshGenerator.GenerateTerrainMeshData(noiseMap);
+                var meshData = MeshGenerator.GenerateTerrainMeshData(noiseMap, _meshHeightMultiPlier, _meshHeightCurve, _detailLevel);
                 mapDisplay.DrawMesh(meshData, colorTexture);
                 break;
             default:
@@ -88,12 +95,6 @@ public class MapGenerator : MonoBehaviour
 
     private void OnValidate()
     {
-        if (_width < 1)
-            _width = 1;
-
-        if (_height < 1)
-            _height = 1;
-
         if (_lacunarity < 1)
             _lacunarity = 1;
 

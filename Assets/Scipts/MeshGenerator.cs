@@ -4,27 +4,30 @@ using UnityEngine;
 
 public static class MeshGenerator 
 {
-    public static MeshData GenerateTerrainMeshData(float[,] heightMap)
+    public static MeshData GenerateTerrainMeshData(float[,] heightMap, float heigthMultiplier, AnimationCurve heightCurve, int detailLevel)
     {
         var width = heightMap.GetLength(0);
         var height = heightMap.GetLength(1);
         float topLeftX = (width-1) / -2f;
         float topLeftZ = (height - 1) / 2f;
 
-        var meshData = new MeshData(width, height);
+        int meshSimplificationIncrement = (detailLevel == 0) ? 1 : detailLevel * 2;
+
+        int verticesPerLine = (width - 1) / meshSimplificationIncrement + 1;
+
+        var meshData = new MeshData(verticesPerLine, verticesPerLine);
         var vertexIndex = 0;
-        for (int y = 0; y < height; y++)
+        for (int y = 0; y < height; y += meshSimplificationIncrement)
         {
-            for (int x = 0; x < width; x++)
+            for (int x = 0; x < width; x += meshSimplificationIncrement)
             {
-                var vertexHeight =  heightMap[x, y];
+                var vertexHeight = heightCurve.Evaluate( heightMap[x, y]) * heigthMultiplier;
                 meshData.Vertices[vertexIndex] = new Vector3(topLeftX + x, vertexHeight, topLeftZ- y);
                 meshData.Uv[vertexIndex] = new Vector2(x / (float)width, y / (float)height);
-                var isNotOnEdge = (x < width - 1 && y < height - 1);
-                if(isNotOnEdge)
+                if (x < width - 1 && y < height - 1)
                 {
-                    meshData.AddTraingle(vertexIndex, vertexIndex + width + 1, vertexIndex + width);
-                    meshData.AddTraingle(vertexIndex + width + 1,vertexIndex, vertexIndex + 1);
+                    meshData.AddTriangle(vertexIndex, vertexIndex + verticesPerLine + 1, vertexIndex + verticesPerLine);
+                    meshData.AddTriangle(vertexIndex + verticesPerLine + 1, vertexIndex, vertexIndex + 1);
                 }
 
                 vertexIndex++;
@@ -50,7 +53,7 @@ public class MeshData
         Triangles= new int[(meshWidth-1)*(meshHeight-1)*6];
     }
 
-    public void AddTraingle(int a, int b, int c)
+    public void AddTriangle(int a, int b, int c)
     {
         Triangles[_triangleIndex] = a;
         Triangles[_triangleIndex+1] = b;
