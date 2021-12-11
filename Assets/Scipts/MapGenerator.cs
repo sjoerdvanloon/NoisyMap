@@ -16,7 +16,7 @@ public class MapGenerator : MonoBehaviour
     }
 
     public enum DrawMode { NoiseMap, ColorMap, Mesh };
-    const int MapChunkSize = 241;
+    public const int Map_Chunk_Size = 241;
 
     [SerializeField] DrawMode _drawMode = DrawMode.NoiseMap;
     [Header("Procedural generations")]
@@ -43,8 +43,8 @@ public class MapGenerator : MonoBehaviour
     {
 
         var noiseMap = Noise.GenerateNoiseMap(
-            MapChunkSize,
-            MapChunkSize,
+            Map_Chunk_Size,
+            Map_Chunk_Size,
             _seed,
             _noiseScale,
             _octaves,
@@ -52,17 +52,17 @@ public class MapGenerator : MonoBehaviour
             _lacunarity,
             _offset);
 
-        Color[] colorMap = new Color[MapChunkSize * MapChunkSize];
-        for (int y = 0; y < MapChunkSize; y++)
+        Color[] colorMap = new Color[Map_Chunk_Size * Map_Chunk_Size];
+        for (int y = 0; y < Map_Chunk_Size; y++)
         {
-            for (int x = 0; x < MapChunkSize; x++)
+            for (int x = 0; x < Map_Chunk_Size; x++)
             {
                 float currentHeight = noiseMap[x, y];
                 foreach (var region in _regions)
                 {
                     if (currentHeight <= region.Height)
                     {
-                        colorMap[y * MapChunkSize + x] = region.Color;
+                        colorMap[y * Map_Chunk_Size + x] = region.Color;
                         break;
                     }
                 }
@@ -71,7 +71,7 @@ public class MapGenerator : MonoBehaviour
 
         var mapDisplay = FindObjectOfType<MapDisplay>();
         var noiseTexture = TextureGenerator.TextureFromHeightMap(noiseMap);
-        var colorTexture = TextureGenerator.TextureFromColorMap(colorMap, MapChunkSize, MapChunkSize);
+        var colorTexture = TextureGenerator.TextureFromColorMap(colorMap, Map_Chunk_Size, Map_Chunk_Size);
 
 
         switch (this._drawMode)
