@@ -89,6 +89,8 @@ public partial class EndlessTerrain
                         }
                     }
                 }
+
+                terrainChunksVisibleLastUpdate.Add(this);
             }
 
             SetVisible(visible);
