@@ -63,6 +63,7 @@
     <Compile Include="Assets\Scipts\TerrainType.cs" />
     <Compile Include="Assets\Scipts\TerrainChunk.cs" />
     <Compile Include="Assets\Scipts\LODMesh.cs" />
+    <Compile Include="Assets\Scipts\FallOffGenerator.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

@@ -35,7 +35,7 @@ public partial class EndlessTerrain : MonoBehaviour
     {
         MaxViewDistance = DetailLevels.Last().visibleDistanceThreshold;
         _mapGenerator = FindObjectOfType<MapGenerator>();
-        chunkSize = MapGenerator.Map_Chunk_Size - 1;
+        chunkSize = MapGenerator.MAP_CHUNK_SIZE - 1;
         chunksVisibleInViewDst = Mathf.RoundToInt(MaxViewDistance / chunkSize);
 
         UpdateVisibleChunks();
