@@ -22,7 +22,7 @@ public partial class MapGenerator : MonoBehaviour
 
 
     public enum DrawMode { NoiseMap, ColorMap, Mesh, FallOffMap };
-    public const int MAP_CHUNK_SIZE = 241;
+    public const int MAP_CHUNK_SIZE = 239;
 
     [SerializeField] DrawMode _drawMode = DrawMode.NoiseMap;
     [Header("Procedural generations")]
@@ -70,8 +70,8 @@ public partial class MapGenerator : MonoBehaviour
     private MapData GenerateMapData(Vector2 centre)
     {
         var noiseMap = Noise.GenerateNoiseMap(
-            MAP_CHUNK_SIZE,
-            MAP_CHUNK_SIZE,
+            MAP_CHUNK_SIZE +2,
+            MAP_CHUNK_SIZE +2,
             _seed,
             _noiseScale,
             _octaves,
@@ -127,7 +127,7 @@ public partial class MapGenerator : MonoBehaviour
                 mapDisplay.DrawTexture(colorTexture);
                 break;
             case DrawMode.Mesh:
-                var meshData = MeshGenerator.GenerateTerrainMeshData(mapData.HeightMap, _meshHeightMultiplier, _meshHeightCurve, _editorPreviewLOD);
+                var meshData = MeshGenerator.GenerateTerrainMesh(mapData.HeightMap, _meshHeightMultiplier, _meshHeightCurve, _editorPreviewLOD);
                 mapDisplay.DrawMesh(meshData, colorTexture);
                 break;
             case DrawMode.FallOffMap:
@@ -146,7 +146,7 @@ public partial class MapGenerator : MonoBehaviour
 
     void MeshDataThread(MapData mapData, int lod, Action<MeshData> callback)
     {
-        var meshData = MeshGenerator.GenerateTerrainMeshData(mapData.HeightMap, _meshHeightMultiplier, _meshHeightCurve, lod);
+        var meshData = MeshGenerator.GenerateTerrainMesh(mapData.HeightMap, _meshHeightMultiplier, _meshHeightCurve, lod);
         lock (_meshDataThreadInfoQueue)
         {
             _meshDataThreadInfoQueue.Enqueue(new MapThreadInfo<MeshData>(callback, meshData));
