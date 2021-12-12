@@ -1,95 +1,56 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
-public class EndlessTerrain : MonoBehaviour
+public partial class EndlessTerrain : MonoBehaviour
 {
-    private class TerrainChunk
+
+    [System.Serializable]
+    public struct LODInfo
     {
-        GameObject m_meshObject;
-        Vector2 m_Position;
-        Bounds m_Bounds;
-
-        MeshRenderer m_MeshRenderer;
-        MeshFilter m_meshFilter;
-
-        public TerrainChunk(Vector2 coordinate, int size, Transform transform, Material material)
-        {
-            m_Position = coordinate * size;
-            m_Bounds = new Bounds(m_Position, Vector2.one * size);
-            var positionV3 = new Vector3(m_Position.x, 0, m_Position.y);
-
-            var name = $"Chunk {coordinate.x}, {coordinate.y}";
-            //m_meshObject = GameObject.CreatePrimitive(PrimitiveType.Plane);
-            m_meshObject = new GameObject(name);
-            m_MeshRenderer = m_meshObject.AddComponent<MeshRenderer>();
-            m_MeshRenderer.material = material;
-            m_meshFilter = m_meshObject.AddComponent<MeshFilter>();
-            //m_meshObject.name = name;
-
-            m_meshObject.transform.position = positionV3;
-        //    m_meshObject.transform.localScale = Vector3.one * size / 10; // 10 is default size of plane
-            m_meshObject.transform.parent = transform;
-
-            SetVisible(false);
-
-            _mapGenerator.RequestMapData(OnMapDataReceived);
-
-        }
-
-        public void OnMeshDataReceived(MeshData meshData)
-        {
-            m_meshFilter.mesh = meshData.CreateMesh();
-        }
-
-        public void UpdateTerrainChunk()
-        {
-            var viewerDstFromNearestEdge = Mathf.Sqrt(m_Bounds.SqrDistance(ViewerPosition));
-            bool visible = viewerDstFromNearestEdge <= Max_View_Distance;
-            SetVisible(visible);
-        }
-
-        public void SetVisible(bool visible)
-        {
-            m_meshObject.SetActive(visible);
-        }
-
-        public bool IsVisible()
-        {
-            return m_meshObject.activeSelf;
-        }
-
-        public void OnMapDataReceived(MapData mapData)
-        {
-            //	print("Map data received");
-            _mapGenerator.RequestMeshData(mapData, OnMeshDataReceived);
-        }
+        public int lod;
+        public float visibleDistanceThreshold;
 
     }
 
-    public const float Max_View_Distance = 450;
+    const float Viewer_Move_Threshold_For_Chunk_Update = 25f;
+    const float Squared_Viewer_Move_Threshold_For_Chunk_Update = Viewer_Move_Threshold_For_Chunk_Update * Viewer_Move_Threshold_For_Chunk_Update;
+
     public Transform viewer;
     public Material MapMaterial;
+    public LODInfo[] DetailLevels;
+    public static float MaxViewDistance;
 
     public static Vector2 ViewerPosition;
     int chunkSize;
     int chunksVisibleInViewDst;
     static MapGenerator _mapGenerator;
+    Vector2 _viewerPositionOld;
 
     Dictionary<Vector2, TerrainChunk> terrainChunkDictionary = new Dictionary<Vector2, TerrainChunk>();
     List<TerrainChunk> terrainChunksVisibleLastUpdate = new List<TerrainChunk>();
 
     void Start()
     {
+        MaxViewDistance = DetailLevels.Last().visibleDistanceThreshold;
         _mapGenerator = FindObjectOfType<MapGenerator>();
         chunkSize = MapGenerator.Map_Chunk_Size - 1;
-        chunksVisibleInViewDst = Mathf.RoundToInt(Max_View_Distance / chunkSize);
+        chunksVisibleInViewDst = Mathf.RoundToInt(MaxViewDistance / chunkSize);
+
+        UpdateVisibleChunks();
     }
 
     void Update()
     {
         ViewerPosition = new Vector2(viewer.position.x, viewer.position.z);
-        UpdateVisibleChunks();
+
+        if ((_viewerPositionOld - ViewerPosition).sqrMagnitude > Squared_Viewer_Move_Threshold_For_Chunk_Update)
+        {
+
+            _viewerPositionOld = ViewerPosition;
+            UpdateVisibleChunks();
+        }
     }
 
     void UpdateVisibleChunks()
@@ -120,7 +81,7 @@ public class EndlessTerrain : MonoBehaviour
                 }
                 else
                 {
-                    terrainChunkDictionary.Add(viewedChunkCoord, new TerrainChunk(viewedChunkCoord, chunkSize, transform, MapMaterial));
+                    terrainChunkDictionary.Add(viewedChunkCoord,  new TerrainChunk(viewedChunkCoord, chunkSize, DetailLevels, transform, MapMaterial));
                 }
 
             }

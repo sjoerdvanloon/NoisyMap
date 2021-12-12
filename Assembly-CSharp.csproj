@@ -61,6 +61,8 @@
     <Compile Include="Assets\Scipts\EndlessTerrain.cs" />
     <Compile Include="Assets\Scipts\MapData.cs" />
     <Compile Include="Assets\Scipts\TerrainType.cs" />
+    <Compile Include="Assets\Scipts\TerrainChunk.cs" />
+    <Compile Include="Assets\Scipts\LODMesh.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
