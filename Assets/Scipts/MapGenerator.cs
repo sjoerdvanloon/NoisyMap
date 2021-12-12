@@ -3,17 +3,23 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
+using System.Threading;
 
-public class MapGenerator : MonoBehaviour
+public partial class MapGenerator : MonoBehaviour
 {
-    [System.Serializable]
-    public struct TerrainType
+
+    public struct MapThreadInfo<T>
     {
-        [Range(0f, 1f)]
-        public float Height;
-        public Color Color;
-        public string Name;
+        public Action<T> Callback { get; }
+        public T parameter { get; }
+
+        public MapThreadInfo(Action<T> callback, T parameter)
+        {
+            Callback = callback;
+            this.parameter = parameter;
+        }
     }
+
 
     public enum DrawMode { NoiseMap, ColorMap, Mesh };
     public const int Map_Chunk_Size = 241;
@@ -30,18 +36,20 @@ public class MapGenerator : MonoBehaviour
 
     [Header("Mesh")]
     [SerializeField] [Range(0, 6)] int _detailLevel = 0;
-    [SerializeField] float _meshHeightMultiPlier = 2f;
+    [SerializeField] float _meshHeightMultiplier = 2f;
     [SerializeField] AnimationCurve _meshHeightCurve = null;
     [SerializeField]
-    [FormerlySerializedAs("_terrainTypes")] 
+    [FormerlySerializedAs("_terrainTypes")]
     TerrainType[] _regions;
+
+    Queue<MapThreadInfo<MapData>> _mapDataThreadInfoQueue = new Queue<MapThreadInfo<MapData>> ();
+    Queue<MapThreadInfo<MeshData>> _meshDataThreadInfoQueue = new Queue<MapThreadInfo<MeshData>> ();
 
 
     public bool AutoUpdate;
 
-    public void GenerateMap()
+    private MapData GenerateMapData()
     {
-
         var noiseMap = Noise.GenerateNoiseMap(
             Map_Chunk_Size,
             Map_Chunk_Size,
@@ -69,10 +77,17 @@ public class MapGenerator : MonoBehaviour
             }
         }
 
-        var mapDisplay = FindObjectOfType<MapDisplay>();
-        var noiseTexture = TextureGenerator.TextureFromHeightMap(noiseMap);
-        var colorTexture = TextureGenerator.TextureFromColorMap(colorMap, Map_Chunk_Size, Map_Chunk_Size);
+        var mapData = new MapData(noiseMap, colorMap);
 
+        return mapData;
+    }
+
+    public void DrawMapInEditor()
+    {
+        MapData mapData = GenerateMapData();
+        var mapDisplay = FindObjectOfType<MapDisplay>();
+        var noiseTexture = TextureGenerator.TextureFromHeightMap(mapData.HeightMap);
+        var colorTexture = TextureGenerator.TextureFromColorMap(mapData.ColorMap, Map_Chunk_Size, Map_Chunk_Size);
 
         switch (this._drawMode)
         {
@@ -83,14 +98,58 @@ public class MapGenerator : MonoBehaviour
                 mapDisplay.DrawTexture(colorTexture);
                 break;
             case DrawMode.Mesh:
-                var meshData = MeshGenerator.GenerateTerrainMeshData(noiseMap, _meshHeightMultiPlier, _meshHeightCurve, _detailLevel);
+                var meshData = MeshGenerator.GenerateTerrainMeshData(mapData.HeightMap, _meshHeightMultiplier, _meshHeightCurve, _detailLevel);
                 mapDisplay.DrawMesh(meshData, colorTexture);
                 break;
             default:
                 throw new NotImplementedException();
         }
+    }
 
+    public void RequestMeshData(MapData mapData, Action<MeshData> callback)
+    {
+        ThreadStart threadStart = delegate { MeshDataThread(mapData, callback); };
+        new Thread(threadStart).Start();
+    }
 
+    void MeshDataThread(MapData mapData, Action<MeshData> callback)
+    {
+        var meshData = MeshGenerator.GenerateTerrainMeshData(mapData.HeightMap, _meshHeightMultiplier, _meshHeightCurve, _detailLevel);
+        lock (_meshDataThreadInfoQueue)
+        {
+            _meshDataThreadInfoQueue.Enqueue(new MapThreadInfo<MeshData>(callback, meshData));
+        }
+    }
+
+    public void RequestMapData(Action<MapData> callback)
+    {
+        ThreadStart threadStart = delegate { MapDataThread(callback); };
+        new Thread(threadStart).Start();
+    }
+
+    void MapDataThread(Action<MapData> callback)
+    {
+        var mapData = GenerateMapData();
+        lock (_mapDataThreadInfoQueue)
+        {
+            _mapDataThreadInfoQueue.Enqueue(new MapThreadInfo<MapData>(callback, mapData));
+        }
+
+    }
+
+    private void Update()
+    {
+        while(_mapDataThreadInfoQueue.Count > 0)
+        {
+            var threadInfo = _mapDataThreadInfoQueue.Dequeue();
+            threadInfo.Callback(threadInfo.parameter);
+        }
+
+        while (_meshDataThreadInfoQueue.Count > 0)
+        {
+            var threadInfo = _meshDataThreadInfoQueue.Dequeue();
+            threadInfo.Callback(threadInfo.parameter);
+        }
     }
 
     private void OnValidate()

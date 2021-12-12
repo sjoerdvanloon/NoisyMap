@@ -10,6 +10,7 @@ public static class MeshGenerator
         var height = heightMap.GetLength(1);
         float topLeftX = (width-1) / -2f;
         float topLeftZ = (height - 1) / 2f;
+        var personalHeightCurve = new AnimationCurve(heightCurve.keys);
 
         int meshSimplificationIncrement = (detailLevel == 0) ? 1 : detailLevel * 2;
 
@@ -21,7 +22,7 @@ public static class MeshGenerator
         {
             for (int x = 0; x < width; x += meshSimplificationIncrement)
             {
-                var vertexHeight = heightCurve.Evaluate( heightMap[x, y]) * heigthMultiplier;
+                var vertexHeight = personalHeightCurve.Evaluate( heightMap[x, y]) * heigthMultiplier;
                 meshData.Vertices[vertexIndex] = new Vector3(topLeftX + x, vertexHeight, topLeftZ- y);
                 meshData.Uv[vertexIndex] = new Vector2(x / (float)width, y / (float)height);
                 if (x < width - 1 && y < height - 1)

@@ -59,6 +59,8 @@
     <Compile Include="Assets\Scipts\TextureGenerator.cs" />
     <Compile Include="Assets\Scipts\MeshGenerator.cs" />
     <Compile Include="Assets\Scipts\EndlessTerrain.cs" />
+    <Compile Include="Assets\Scipts\MapData.cs" />
+    <Compile Include="Assets\Scipts\TerrainType.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

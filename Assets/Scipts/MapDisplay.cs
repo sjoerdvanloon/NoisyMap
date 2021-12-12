@@ -13,8 +13,6 @@ public class MapDisplay : MonoBehaviour
 
     public void DrawTexture(Texture2D texture)
     {
-       
-
         // _textureRenderer.material  only instantiated at runtime
         _textureRenderer.sharedMaterial.mainTexture = texture;
         _textureRenderer.transform.localScale = new Vector3(texture.width, 1, texture.height); 
