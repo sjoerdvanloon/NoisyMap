@@ -38,6 +38,7 @@ public partial class MapGenerator : MonoBehaviour
     [SerializeField] [Range(0, 6)] int _editorPreviewLOD = 0;
     [SerializeField] float _meshHeightMultiplier = 2f;
     [SerializeField] AnimationCurve _meshHeightCurve = null;
+    [SerializeField] NormalizeMode _normalizeMode = NormalizeMode.Local;
     [SerializeField]
     [FormerlySerializedAs("_terrainTypes")]
     TerrainType[] _regions;
@@ -58,7 +59,8 @@ public partial class MapGenerator : MonoBehaviour
             _octaves,
             _persistance,
             _lacunarity,
-            _offset + centre);
+            _offset + centre,
+            _normalizeMode);
 
         Color[] colorMap = new Color[Map_Chunk_Size * Map_Chunk_Size];
         for (int y = 0; y < Map_Chunk_Size; y++)
