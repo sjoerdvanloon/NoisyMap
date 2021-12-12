@@ -10,19 +10,20 @@ public partial class EndlessTerrain : MonoBehaviour
     public struct LODInfo
     {
         public int lod;
-        public float visibleDistanceThreshold;
+        public float visibleDstThreshold;
+        public bool useForCollider;
 
     }
-    const float SCALE = 5f;
+    const float SCALE = 2f;
     const float VIEWER_MOVE_THRESHOLD_FOR_CHUNK_UPDATE = 25f;
     const float SQUARED_VIEWER_MOVE_THRESHOLD_FOR_CHUNK_UPDATE = VIEWER_MOVE_THRESHOLD_FOR_CHUNK_UPDATE * VIEWER_MOVE_THRESHOLD_FOR_CHUNK_UPDATE;
 
     public Transform viewer;
     public Material MapMaterial;
     public LODInfo[] DetailLevels;
-    public static float MaxViewDistance;
+    public static float maxViewDst;
 
-    public static Vector2 ViewerPosition;
+    public static Vector2 viewerPosition;
     int chunkSize;
     int chunksVisibleInViewDst;
     static MapGenerator _mapGenerator;
@@ -33,22 +34,22 @@ public partial class EndlessTerrain : MonoBehaviour
 
     void Start()
     {
-        MaxViewDistance = DetailLevels.Last().visibleDistanceThreshold;
+        maxViewDst = DetailLevels.Last().visibleDstThreshold;
         _mapGenerator = FindObjectOfType<MapGenerator>();
         chunkSize = MapGenerator.MAP_CHUNK_SIZE - 1;
-        chunksVisibleInViewDst = Mathf.RoundToInt(MaxViewDistance / chunkSize);
+        chunksVisibleInViewDst = Mathf.RoundToInt(maxViewDst / chunkSize);
 
         UpdateVisibleChunks();
     }
 
     void Update()
     {
-        ViewerPosition = new Vector2(viewer.position.x, viewer.position.z) / SCALE;
+        viewerPosition = new Vector2(viewer.position.x, viewer.position.z) / SCALE;
 
-        if ((_viewerPositionOld - ViewerPosition).sqrMagnitude > SQUARED_VIEWER_MOVE_THRESHOLD_FOR_CHUNK_UPDATE)
+        if ((_viewerPositionOld - viewerPosition).sqrMagnitude > SQUARED_VIEWER_MOVE_THRESHOLD_FOR_CHUNK_UPDATE)
         {
 
-            _viewerPositionOld = ViewerPosition;
+            _viewerPositionOld = viewerPosition;
             UpdateVisibleChunks();
         }
     }
@@ -62,8 +63,8 @@ public partial class EndlessTerrain : MonoBehaviour
         }
         terrainChunksVisibleLastUpdate.Clear();
 
-        int currentChunkCoordX = Mathf.RoundToInt(ViewerPosition.x / chunkSize);
-        int currentChunkCoordY = Mathf.RoundToInt(ViewerPosition.y / chunkSize);
+        int currentChunkCoordX = Mathf.RoundToInt(viewerPosition.x / chunkSize);
+        int currentChunkCoordY = Mathf.RoundToInt(viewerPosition.y / chunkSize);
 
         for (int yOffset = -chunksVisibleInViewDst; yOffset <= chunksVisibleInViewDst; yOffset++)
         {
@@ -74,10 +75,6 @@ public partial class EndlessTerrain : MonoBehaviour
                 if (terrainChunkDictionary.ContainsKey(viewedChunkCoord))
                 {
                     terrainChunkDictionary[viewedChunkCoord].UpdateTerrainChunk();
-                    //if (terrainChunkDictionary[viewedChunkCoord].IsVisible())
-                    //{
-                    //    terrainChunksVisibleLastUpdate.Add(terrainChunkDictionary[viewedChunkCoord]);
-                    //}
                 }
                 else
                 {

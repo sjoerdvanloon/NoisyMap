@@ -4,9 +4,9 @@ public partial class EndlessTerrain
 {
     class LODMesh
     {
-        public Mesh Mesh;
-        public bool HasBeenRequested;
-        public bool HasMesh;
+        public Mesh mesh;
+        public bool hasRequestedMesh;
+        public bool hasMesh;
         public int lod;
         public System.Action UpdateCallback;
 
@@ -18,10 +18,10 @@ public partial class EndlessTerrain
 
         public void RequestMesh(MapData mapData)
         {
-            HasBeenRequested = true;
+            hasRequestedMesh = true;
             _mapGenerator.RequestMeshData(mapData, lod, (meshData) => { 
-                Mesh = meshData.CreateMesh(); 
-                HasMesh = true;
+                mesh = meshData.CreateMesh(); 
+                hasMesh = true;
                 UpdateCallback();
               });
         }
