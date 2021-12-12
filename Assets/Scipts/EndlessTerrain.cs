@@ -13,9 +13,9 @@ public partial class EndlessTerrain : MonoBehaviour
         public float visibleDistanceThreshold;
 
     }
-
-    const float Viewer_Move_Threshold_For_Chunk_Update = 25f;
-    const float Squared_Viewer_Move_Threshold_For_Chunk_Update = Viewer_Move_Threshold_For_Chunk_Update * Viewer_Move_Threshold_For_Chunk_Update;
+    const float SCALE = 5f;
+    const float VIEWER_MOVE_THRESHOLD_FOR_CHUNK_UPDATE = 25f;
+    const float SQUARED_VIEWER_MOVE_THRESHOLD_FOR_CHUNK_UPDATE = VIEWER_MOVE_THRESHOLD_FOR_CHUNK_UPDATE * VIEWER_MOVE_THRESHOLD_FOR_CHUNK_UPDATE;
 
     public Transform viewer;
     public Material MapMaterial;
@@ -43,9 +43,9 @@ public partial class EndlessTerrain : MonoBehaviour
 
     void Update()
     {
-        ViewerPosition = new Vector2(viewer.position.x, viewer.position.z);
+        ViewerPosition = new Vector2(viewer.position.x, viewer.position.z) / SCALE;
 
-        if ((_viewerPositionOld - ViewerPosition).sqrMagnitude > Squared_Viewer_Move_Threshold_For_Chunk_Update)
+        if ((_viewerPositionOld - ViewerPosition).sqrMagnitude > SQUARED_VIEWER_MOVE_THRESHOLD_FOR_CHUNK_UPDATE)
         {
 
             _viewerPositionOld = ViewerPosition;

@@ -32,8 +32,8 @@ public partial class EndlessTerrain
             m_MeshRenderer.material = material;
             m_meshFilter = m_meshObject.AddComponent<MeshFilter>();
             //m_meshObject.name = name;
-
-            m_meshObject.transform.position = positionV3;
+            m_meshObject.transform.localScale = Vector3.one * SCALE;
+            m_meshObject.transform.position = positionV3 * SCALE;
             //    m_meshObject.transform.localScale = Vector3.one * size / 10; // 10 is default size of plane
             m_meshObject.transform.parent = transform;
 
