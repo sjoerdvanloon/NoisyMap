@@ -70,10 +70,14 @@ public partial class MapGenerator : MonoBehaviour
                 float currentHeight = noiseMap[x, y];
                 foreach (var region in _regions)
                 {
-                    if (currentHeight <= region.Height)
+                    if (currentHeight >= region.Height)
                     {
                         colorMap[y * Map_Chunk_Size + x] = region.Color;
-                        break;
+                    }
+                    else
+                    {
+
+                        break; // reach a value which is less then the regions height
                     }
                 }
             }

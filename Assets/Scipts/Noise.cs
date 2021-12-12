@@ -94,8 +94,9 @@ public static class Noise
                 }
                 else
                 {
-                    var estimate = 1f;
+                    var estimate = 1.76f;
                     float normalizedHeight = noiseMap[x, y] + 1 / (2f * maxPossibleGlobalHeight / estimate);
+                    noiseMap[x, y] = Mathf.Clamp( normalizedHeight, 0f, int.MaxValue);
                 }
             }
         }
