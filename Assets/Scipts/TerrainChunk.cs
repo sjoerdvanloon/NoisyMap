@@ -127,7 +127,7 @@ public partial class EndlessTerrain
             this.mapData = mapData;
             mapDataReceived = true;            ////	print("Map data received");
             //_mapGenerator.RequestMeshData(mapData, OnMeshDataReceived);
-            var texture = TextureGenerator.TextureFromColorMap(mapData.ColorMap, MapGenerator.MAP_CHUNK_SIZE, MapGenerator.MAP_CHUNK_SIZE);
+            var texture = TextureGenerator.TextureFromColorMap(mapData.ColorMap, _mapGenerator.MapChunkSize, _mapGenerator.MapChunkSize);
             meshRenderer.material.mainTexture = texture;
             UpdateTerrainChunk();
         }
